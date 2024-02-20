@@ -3,8 +3,8 @@ import 'package:fast_calories/utils/color.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class LoginPage extends StatelessWidget {
-  const LoginPage({super.key});
+class SignupPage extends StatelessWidget {
+  const SignupPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +30,7 @@ class LoginPage extends StatelessWidget {
                   ),
                 ),
                 const Text(
-                  "Log IN",
+                  "Sign Up",
                   style: TextStyle(
                     fontSize: 24,
                   ),
@@ -39,7 +39,7 @@ class LoginPage extends StatelessWidget {
                   padding: const EdgeInsets.only(top: 8),
                   width: width * 0.75,
                   child: const Text(
-                    "Let’s sign in to your account and start your calorie management",
+                    "Let’s sign up to your account and start your calorie management",
                     style: TextStyle(
                       fontSize: 16,
                       color: Color(ColorWay.gray),
@@ -51,6 +51,15 @@ class LoginPage extends StatelessWidget {
                   child: const TextField(
                     decoration: InputDecoration(
                       hintText: "Enter your Email",
+                      fillColor: Color(ColorWay.gray),
+                    ),
+                  ),
+                ),
+                Container(
+                  padding: EdgeInsets.only(top: height * 0.012),
+                  child: const TextField(
+                    decoration: InputDecoration(
+                      hintText: "Enter your Name",
                       fillColor: Color(ColorWay.gray),
                     ),
                   ),
@@ -76,7 +85,7 @@ class LoginPage extends StatelessWidget {
                       color: Color(ColorWay.primary)),
                   child: const Center(
                     child: Text(
-                      "Sign IN",
+                      "Sign Up",
                       style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
@@ -85,17 +94,17 @@ class LoginPage extends StatelessWidget {
                   ),
                 ),
                 Padding(
-                  padding: EdgeInsets.only(top: width * 0.45),
+                  padding: EdgeInsets.only(top: width * 0.35),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text("Don't have an account? "),
+                      const Text("Already have an account? "),
                       InkWell(
                         onTap: () {
-                          Get.toNamed(RouteName.signupPage);
+                          Get.toNamed(RouteName.loginPage);
                         },
                         child: const Text(
-                          "Sign Up",
+                          "Sign In",
                           style: TextStyle(
                             color: Color(ColorWay.primary),
                             decoration: TextDecoration.underline,
