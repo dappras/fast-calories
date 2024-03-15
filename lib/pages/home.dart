@@ -46,11 +46,113 @@ class Homepage extends StatelessWidget {
                 padding:
                     EdgeInsets.only(bottom: height * 0.05, top: height * 0.013),
                 child: const Text(
-                  "Find out the calories in your ready meals.",
+                  "Find out the calories in your fast foods.",
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w500,
                   ),
+                ),
+              ),
+              Container(
+                margin: EdgeInsets.only(bottom: height * 0.03),
+                padding: EdgeInsets.symmetric(
+                    horizontal: width * 0.04, vertical: height * 0.02),
+                decoration: BoxDecoration(
+                  color: const Color(ColorWay.colorCard1),
+                  borderRadius: const BorderRadius.all(Radius.circular(12)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.3), // warna bayangan
+                      spreadRadius: 4, // radius bayangan yang menyebar
+                      blurRadius: 7, // radius blur bayangan
+                      offset: const Offset(0, 3), // offset bayangan
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(bottom: height * 0.02),
+                      child: const Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            "Total Calories",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          SizedBox(
+                            width: 4,
+                          ),
+                          Icon(
+                            Icons.bar_chart_outlined,
+                            size: 20,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              "Today",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            SizedBox(
+                              height: 6,
+                            ),
+                            Text("200 kkal"),
+                          ],
+                        ),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              "This Week",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            SizedBox(
+                              height: 6,
+                            ),
+                            Text("340 kkal"),
+                          ],
+                        ),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              "This Month",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            SizedBox(
+                              height: 6,
+                            ),
+                            Text("1000 kkal"),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
               const TabBar(
