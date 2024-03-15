@@ -1,5 +1,6 @@
 import 'package:fast_calories/pages/edit_profile.dart';
 import 'package:fast_calories/pages/home.dart';
+import 'package:fast_calories/pages/list_calories.dart';
 import 'package:fast_calories/pages/login.dart';
 import 'package:fast_calories/pages/profile.dart';
 import 'package:fast_calories/pages/signup.dart';
@@ -15,6 +16,8 @@ class AppRoute {
         name: RouteName.editProfilePage, page: () => const EditProfilePage()),
     GetPage(name: RouteName.welcomePage, page: () => const WelcomePage()),
     GetPage(name: RouteName.loginPage, page: () => const LoginPage()),
-    GetPage(name: RouteName.signupPage, page: () => const SignupPage())
+    GetPage(name: RouteName.signupPage, page: () => const SignupPage()),
+    GetPage(
+        name: RouteName.listCaloriePage, page: () => const ListCaloriePage()),
   ];
 }

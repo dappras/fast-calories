@@ -222,31 +222,37 @@ class Homepage extends StatelessWidget {
                                     ],
                                   ),
                                 ),
-                              Container(
-                                height: height * 0.18,
-                                width: width * 0.40,
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 12, vertical: 16),
-                                decoration: BoxDecoration(
-                                    borderRadius: const BorderRadius.all(
-                                        Radius.circular(20)),
-                                    border: Border.all(
-                                      color: const Color(ColorWay.primary),
-                                      width: 1,
-                                    )),
-                                child: const Center(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        "See More",
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w500,
+                              InkWell(
+                                onTap: () {
+                                  Get.toNamed(RouteName.listCaloriePage);
+                                },
+                                child: Container(
+                                  height: height * 0.18,
+                                  width: width * 0.40,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 16),
+                                  decoration: BoxDecoration(
+                                      borderRadius: const BorderRadius.all(
+                                          Radius.circular(20)),
+                                      border: Border.all(
+                                        color: const Color(ColorWay.primary),
+                                        width: 1,
+                                      )),
+                                  child: const Center(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          "See More",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                          ),
                                         ),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
