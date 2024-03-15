@@ -65,27 +65,32 @@ class LoginPage extends StatelessWidget {
                     ),
                   ),
                 ),
-                Container(
-                  width: width,
-                  margin: EdgeInsets.only(top: height * 0.075),
-                  padding: const EdgeInsets.symmetric(vertical: 15),
-                  decoration: const BoxDecoration(
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(30),
-                      ),
-                      color: Color(ColorWay.primary)),
-                  child: const Center(
-                    child: Text(
-                      "Sign IN",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
+                InkWell(
+                  onTap: () {
+                    Get.toNamed(RouteName.homePage);
+                  },
+                  child: Container(
+                    width: width,
+                    margin: EdgeInsets.only(top: height * 0.075),
+                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    decoration: const BoxDecoration(
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(30),
+                        ),
+                        color: Color(ColorWay.primary)),
+                    child: const Center(
+                      child: Text(
+                        "Sign IN",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
                 ),
                 Padding(
-                  padding: EdgeInsets.only(top: width * 0.45),
+                  padding: EdgeInsets.only(top: width * 0.40),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [

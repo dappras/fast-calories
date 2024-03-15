@@ -29,7 +29,7 @@ class WelcomePage extends StatelessWidget {
                   topLeft: Radius.circular(30),
                 )),
             width: MediaQuery.of(context).size.width * 1,
-            height: MediaQuery.of(context).size.height * 0.53,
+            height: MediaQuery.of(context).size.height * 0.54,
             padding: EdgeInsets.symmetric(
                 horizontal: MediaQuery.of(context).size.width * 0.1,
                 vertical: MediaQuery.of(context).size.height * 0.08),
