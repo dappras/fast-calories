@@ -1,5 +1,7 @@
+import 'package:fast_calories/routes/route_name.dart';
 import 'package:fast_calories/utils/color.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class Homepage extends StatelessWidget {
   const Homepage({super.key});
@@ -13,10 +15,12 @@ class Homepage extends StatelessWidget {
 
     onItemTapped(var index) {
       if (index == 1) {}
-
-      if (index == 0) {}
-
-      if (index == 2) {}
+      if (index == 0) {
+        Get.offNamed(RouteName.homePage);
+      }
+      if (index == 2) {
+        Get.offNamed(RouteName.profilePage);
+      }
     }
 
     return DefaultTabController(
@@ -125,7 +129,7 @@ class Homepage extends StatelessWidget {
                                     borderRadius: const BorderRadius.all(
                                         Radius.circular(20)),
                                     border: Border.all(
-                                      color: Color(ColorWay.primary),
+                                      color: const Color(ColorWay.primary),
                                       width: 1,
                                     )),
                                 child: const Center(
