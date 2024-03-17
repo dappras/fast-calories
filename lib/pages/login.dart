@@ -1,3 +1,4 @@
+import 'package:fast_calories/controller/login_controller.dart';
 import 'package:fast_calories/routes/route_name.dart';
 import 'package:fast_calories/utils/color.dart';
 import 'package:flutter/material.dart';
@@ -8,8 +9,13 @@ class LoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var loginCont = Get.put(LoginController());
+
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
+
+    TextEditingController email = TextEditingController();
+    TextEditingController password = TextEditingController();
 
     return Scaffold(
       body: SafeArea(
@@ -48,8 +54,9 @@ class LoginPage extends StatelessWidget {
                 ),
                 Container(
                   padding: EdgeInsets.only(top: height * 0.035),
-                  child: const TextField(
-                    decoration: InputDecoration(
+                  child: TextField(
+                    controller: email,
+                    decoration: const InputDecoration(
                       hintText: "Enter your Email",
                       fillColor: Color(ColorWay.gray),
                     ),
@@ -57,17 +64,24 @@ class LoginPage extends StatelessWidget {
                 ),
                 Container(
                   padding: EdgeInsets.only(top: height * 0.012),
-                  child: const TextField(
+                  child: TextField(
+                    controller: password,
                     obscureText: true,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       hintText: "Password",
                       fillColor: Color(ColorWay.gray),
                     ),
                   ),
                 ),
                 InkWell(
-                  onTap: () {
-                    Get.toNamed(RouteName.homePage);
+                  onTap: () async {
+                    if (email.text.isNotEmpty && password.text.isNotEmpty) {
+                      var resLogin = await loginCont.actionLogin(
+                          email.text, password.text);
+                      if (resLogin['success']) {
+                        Get.toNamed(RouteName.homePage);
+                      }
+                    }
                   },
                   child: Container(
                     width: width,

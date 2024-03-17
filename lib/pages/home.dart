@@ -1,10 +1,90 @@
+import 'dart:io';
+
 import 'package:fast_calories/routes/route_name.dart';
 import 'package:fast_calories/utils/color.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 
-class Homepage extends StatelessWidget {
+class Homepage extends StatefulWidget {
   const Homepage({super.key});
+
+  @override
+  State<Homepage> createState() => _HomepageState();
+}
+
+class _HomepageState extends State<Homepage> {
+  Future _pickImageFromGallery() async {
+    final returnedImage =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
+    print(File(returnedImage!.path));
+  }
+
+  Future _pickImageFromCamera() async {
+    final returnedImage =
+        await ImagePicker().pickImage(source: ImageSource.camera);
+    print(File(returnedImage!.path));
+  }
+
+  Future<dynamic> bottomSheetScan(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    final height = MediaQuery.of(context).size.height;
+
+    return Get.bottomSheet(
+      Container(
+        padding: EdgeInsets.symmetric(vertical: height * 0.04),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+        ),
+        height: height * 0.18,
+        width: width,
+        child: Column(
+          children: [
+            InkWell(
+              onTap: () {
+                _pickImageFromCamera();
+              },
+              child: Container(
+                  padding: EdgeInsets.symmetric(vertical: height * 0.015),
+                  child: const Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.camera_alt),
+                      SizedBox(
+                        width: 8,
+                      ),
+                      Text(
+                        "Take a Picture",
+                        style: TextStyle(fontSize: 18),
+                      ),
+                    ],
+                  )),
+            ),
+            InkWell(
+              onTap: () {
+                _pickImageFromGallery();
+              },
+              child: const Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.crop_original_rounded),
+                  SizedBox(
+                    width: 8,
+                  ),
+                  Text(
+                    "Add Picture From Gallery",
+                    style: TextStyle(fontSize: 18),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -293,7 +373,9 @@ class Homepage extends StatelessWidget {
         floatingActionButton: ClipRRect(
           borderRadius: const BorderRadius.all(Radius.circular(200)),
           child: InkWell(
-            onTap: () {},
+            onTap: () {
+              bottomSheetScan(context);
+            },
             child: Container(
               decoration: BoxDecoration(
                   color: const Color(ColorWay.primary),

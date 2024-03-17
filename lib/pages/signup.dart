@@ -1,3 +1,4 @@
+import 'package:fast_calories/controller/register_controller.dart';
 import 'package:fast_calories/routes/route_name.dart';
 import 'package:fast_calories/utils/color.dart';
 import 'package:flutter/material.dart';
@@ -8,8 +9,14 @@ class SignupPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var registerCont = Get.put(RegisterController());
+
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
+
+    TextEditingController email = TextEditingController();
+    TextEditingController name = TextEditingController();
+    TextEditingController password = TextEditingController();
 
     return Scaffold(
       body: SafeArea(
@@ -48,8 +55,9 @@ class SignupPage extends StatelessWidget {
                 ),
                 Container(
                   padding: EdgeInsets.only(top: height * 0.035),
-                  child: const TextField(
-                    decoration: InputDecoration(
+                  child: TextField(
+                    controller: email,
+                    decoration: const InputDecoration(
                       hintText: "Enter your Email",
                       fillColor: Color(ColorWay.gray),
                     ),
@@ -57,8 +65,9 @@ class SignupPage extends StatelessWidget {
                 ),
                 Container(
                   padding: EdgeInsets.only(top: height * 0.012),
-                  child: const TextField(
-                    decoration: InputDecoration(
+                  child: TextField(
+                    controller: name,
+                    decoration: const InputDecoration(
                       hintText: "Enter your Name",
                       fillColor: Color(ColorWay.gray),
                     ),
@@ -66,29 +75,46 @@ class SignupPage extends StatelessWidget {
                 ),
                 Container(
                   padding: EdgeInsets.only(top: height * 0.012),
-                  child: const TextField(
+                  child: TextField(
+                    controller: password,
                     obscureText: true,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       hintText: "Password",
                       fillColor: Color(ColorWay.gray),
                     ),
                   ),
                 ),
-                Container(
-                  width: width,
-                  margin: EdgeInsets.only(top: height * 0.075),
-                  padding: const EdgeInsets.symmetric(vertical: 15),
-                  decoration: const BoxDecoration(
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(30),
-                      ),
-                      color: Color(ColorWay.primary)),
-                  child: const Center(
-                    child: Text(
-                      "Sign Up",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
+                InkWell(
+                  onTap: () async {
+                    if (email.text.isNotEmpty &&
+                        password.text.isNotEmpty &&
+                        name.text.isNotEmpty) {
+                      var resRegister = await registerCont.actionRegister(
+                        email.text,
+                        name.text,
+                        password.text,
+                      );
+                      if (resRegister['success']) {
+                        Get.toNamed(RouteName.loginPage);
+                      }
+                    }
+                  },
+                  child: Container(
+                    width: width,
+                    margin: EdgeInsets.only(top: height * 0.075),
+                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    decoration: const BoxDecoration(
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(30),
+                        ),
+                        color: Color(ColorWay.primary)),
+                    child: const Center(
+                      child: Text(
+                        "Sign Up",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),

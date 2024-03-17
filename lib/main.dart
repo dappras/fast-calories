@@ -2,8 +2,10 @@ import 'package:fast_calories/pages/welcome.dart';
 import 'package:fast_calories/routes/page_route.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 
-void main() {
+void main() async {
+  await GetStorage.init();
   runApp(const MyApp());
 }
 
