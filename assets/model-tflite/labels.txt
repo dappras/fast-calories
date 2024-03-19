@@ -1,0 +1,6 @@
+0 Pizza
+1 Burger
+2 Chicken
+3 Fries
+4 Donut
+5 Sandwich

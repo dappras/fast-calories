@@ -1,8 +1,53 @@
-import 'package:fast_calories/utils/color.dart';
-import 'package:flutter/material.dart';
+import 'dart:developer';
 
-class ListCaloriePage extends StatelessWidget {
+import 'package:fast_calories/utils/color.dart';
+import 'package:fast_calories/utils/http_services.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+class ListCaloriePage extends StatefulWidget {
   const ListCaloriePage({super.key});
+
+  @override
+  State<ListCaloriePage> createState() => _ListCaloriePageState();
+}
+
+class _ListCaloriePageState extends State<ListCaloriePage> {
+  var http = HttpService();
+  var listCalorie = [];
+
+  @override
+  void initState() {
+    getCalorie();
+    super.initState();
+  }
+
+  Future getCalorie() async {
+    await http.post('calorie/get-calorie').then((res) {
+      if (res['success']) {
+        if (res['data'].length > 0) {
+          if (Get.arguments[0] == "today") {
+            setState(() {
+              listCalorie = res['data']['calorieToday'];
+            });
+          }
+          if (Get.arguments[0] == "week") {
+            setState(() {
+              listCalorie = res['data']['calorieWeek'];
+            });
+          }
+          if (Get.arguments[0] == "all") {
+            setState(() {
+              listCalorie = res['data']['calorieAll'];
+            });
+          }
+        }
+      }
+    }).catchError((e) {
+      log("Error getting calorie");
+      print(e);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +73,7 @@ class ListCaloriePage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                for (int i = 0; i < 6; i++)
+                for (int i = 0; i < listCalorie.length; i++)
                   Padding(
                     padding: EdgeInsets.symmetric(vertical: height * 0.015),
                     child: Row(
@@ -43,8 +88,8 @@ class ListCaloriePage extends StatelessWidget {
                           child: ClipRRect(
                             borderRadius:
                                 const BorderRadius.all(Radius.circular(1000)),
-                            child: Image.asset(
-                              'assets/images/beef.png',
+                            child: Image.network(
+                              listCalorie[i]['image'],
                               fit: BoxFit.cover,
                             ),
                           ),
@@ -52,21 +97,21 @@ class ListCaloriePage extends StatelessWidget {
                         const SizedBox(
                           width: 24,
                         ),
-                        const Column(
+                        Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "Steak A5",
-                              style: TextStyle(
+                              listCalorie[i]['foodName'],
+                              style: const TextStyle(
                                 fontSize: 18,
                               ),
                             ),
-                            SizedBox(
+                            const SizedBox(
                               height: 6,
                             ),
                             Text(
-                              "400 Kkal",
-                              style: TextStyle(
+                              "${listCalorie[i]['calorie']} Kkal",
+                              style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 14,
                                 color: Color(ColorWay.gray),

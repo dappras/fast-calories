@@ -18,8 +18,6 @@ class HttpService {
     body ??= {};
     var authKey = storage.getItem("token");
 
-    print("masukkk");
-
     Map<String, String> requestHeaders = {
       "Content-type": "application/json; charset=UTF-8",
       "Accept": "application/json",

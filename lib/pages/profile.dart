@@ -1,10 +1,217 @@
+import 'dart:convert';
+import 'dart:io';
+import 'dart:math';
+import 'dart:typed_data';
+
 import 'package:fast_calories/routes/route_name.dart';
 import 'package:fast_calories/utils/color.dart';
+import 'package:fast_calories/utils/http_services.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:localstorage/localstorage.dart';
+import 'package:tflite_v2/tflite_v2.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  final LocalStorage storage = LocalStorage('fast-calories');
+  var http = HttpService();
+
+  File? file;
+  var _recognitions;
+  var v = "";
+  var base64Image = "";
+
+  TextEditingController name = TextEditingController();
+  TextEditingController email = TextEditingController();
+
+  Future _pickImageFromGallery() async {
+    final returnedImage =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
+
+    setState(() {
+      file = File(returnedImage!.path);
+    });
+
+    Uint8List _bytes = await File(returnedImage!.path).readAsBytes();
+    String _base64String = base64.encode(_bytes);
+    setState(() {
+      base64Image = _base64String;
+    });
+
+    detectimage(file!);
+    print(File(returnedImage!.path));
+  }
+
+  Future _pickImageFromCamera() async {
+    final returnedImage =
+        await ImagePicker().pickImage(source: ImageSource.camera);
+
+    setState(() {
+      file = File(returnedImage!.path);
+    });
+
+    Uint8List _bytes = await File(returnedImage!.path).readAsBytes();
+    String _base64String = base64.encode(_bytes);
+    setState(() {
+      base64Image = _base64String;
+    });
+
+    detectimage(file!);
+    print(File(returnedImage!.path));
+  }
+
+  Future detectimage(File image) async {
+    int startTime = DateTime.now().millisecondsSinceEpoch;
+    var recognitions = await Tflite.runModelOnImage(
+      path: image.path,
+      numResults: 6,
+      threshold: 0.05,
+      imageMean: 127.5,
+      imageStd: 127.5,
+    );
+    setState(() {
+      _recognitions = recognitions;
+      v = recognitions.toString();
+    });
+    String stringInput = _recognitions[0]['label'];
+
+    List<String> kata = stringInput.split(' ');
+
+    String foodIndex = kata.length > 0 ? kata[0] : '';
+    String food = kata.length > 1 ? kata[1] : '';
+
+    var calorie = 0;
+    if (foodIndex == '0') {
+      calorie = Random().nextInt(3000 - 1500 + 1) + 1500;
+    } else if (foodIndex == '1') {
+      calorie = Random().nextInt(700 - 250 + 1) + 250;
+    } else if (foodIndex == '2') {
+      calorie = Random().nextInt(350 - 200 + 1) + 200;
+    } else if (foodIndex == '3') {
+      calorie = Random().nextInt(380 - 170 + 1) + 170;
+    } else if (foodIndex == '4') {
+      calorie = Random().nextInt(330 - 180 + 1) + 180;
+    } else if (foodIndex == '5') {
+      calorie = Random().nextInt(400 - 270 + 1) + 270;
+    }
+
+    var bodyStoreCalorie = {
+      "foodName": food,
+      "image": base64Image,
+      "calorie": calorie
+    };
+
+    actionStoreCalorie(bodyStoreCalorie);
+  }
+
+  Future<dynamic> bottomSheetScan(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    final height = MediaQuery.of(context).size.height;
+
+    return Get.bottomSheet(
+      Container(
+        padding: EdgeInsets.symmetric(vertical: height * 0.04),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+        ),
+        height: height * 0.18,
+        width: width,
+        child: Column(
+          children: [
+            InkWell(
+              onTap: () {
+                _pickImageFromCamera();
+              },
+              child: Container(
+                  padding: EdgeInsets.symmetric(vertical: height * 0.015),
+                  child: const Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.camera_alt),
+                      SizedBox(
+                        width: 8,
+                      ),
+                      Text(
+                        "Take a Picture",
+                        style: TextStyle(fontSize: 18),
+                      ),
+                    ],
+                  )),
+            ),
+            InkWell(
+              onTap: () {
+                _pickImageFromGallery();
+              },
+              child: const Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.crop_original_rounded),
+                  SizedBox(
+                    width: 8,
+                  ),
+                  Text(
+                    "Add Picture From Gallery",
+                    style: TextStyle(fontSize: 18),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  loadmodel() async {
+    await Tflite.loadModel(
+      model: "assets/model-tflite/fast-food.tflite",
+      labels: "assets/model-tflite/labels.txt",
+    );
+  }
+
+  Future actionStoreCalorie(data) async {
+    var body = data;
+
+    await http.post('calorie/store-calorie', body: body).then((res) {
+      Get.back();
+      Get.offAllNamed(RouteName.homePage);
+    }).catchError((e) {
+      print("Error getting data user");
+      print(e);
+    });
+  }
+
+  @override
+  void initState() {
+    loadmodel().then((value) {
+      setState(() {});
+    });
+    getUser();
+    super.initState();
+  }
+
+  Future getUser() async {
+    await http.post('user/get-user').then((res) {
+      if (res['success']) {
+        setState(() {
+          name.text = res['data']['name'];
+          email.text = res['data']['email'];
+        });
+      }
+    }).catchError((e) {
+      print("Error getting data user");
+      print(e);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +279,7 @@ class ProfilePage extends StatelessWidget {
                         padding: EdgeInsets.only(
                             top: MediaQuery.of(context).size.height * 0.025),
                         child: TextFormField(
-                          initialValue: "daffa.rasyid",
+                          controller: name,
                           readOnly: true,
                           decoration: const InputDecoration(
                             hintText: "Username",
@@ -86,7 +293,7 @@ class ProfilePage extends StatelessWidget {
                         padding: EdgeInsets.only(
                             top: MediaQuery.of(context).size.height * 0.025),
                         child: TextFormField(
-                          initialValue: "daffa.naufan@gmail.com",
+                          controller: email,
                           readOnly: true,
                           decoration: const InputDecoration(
                             hintText: "Email",
@@ -165,7 +372,10 @@ class ProfilePage extends StatelessWidget {
                   child: Column(
                     children: [
                       InkWell(
-                        onTap: () {},
+                        onTap: () async {
+                          await storage.clear();
+                          Get.offAllNamed(RouteName.welcomePage);
+                        },
                         child: const Row(
                           children: [
                             Icon(
@@ -217,7 +427,9 @@ class ProfilePage extends StatelessWidget {
         floatingActionButton: ClipRRect(
           borderRadius: const BorderRadius.all(Radius.circular(200)),
           child: InkWell(
-            onTap: () {},
+            onTap: () {
+              bottomSheetScan(context);
+            },
             child: Container(
               decoration: BoxDecoration(
                   color: const Color(ColorWay.primary),

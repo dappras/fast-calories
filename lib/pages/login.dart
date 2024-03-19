@@ -79,7 +79,7 @@ class LoginPage extends StatelessWidget {
                       var resLogin = await loginCont.actionLogin(
                           email.text, password.text);
                       if (resLogin['success']) {
-                        Get.toNamed(RouteName.homePage);
+                        Get.offAllNamed(RouteName.homePage);
                       }
                     }
                   },
