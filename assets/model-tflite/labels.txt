@@ -1,6 +1,6 @@
-0 Pizza
+0 Baked Potato
 1 Burger
-2 Chicken
+2 Fried Chicken
 3 Fries
-4 Donut
+4 Pizza
 5 Sandwich

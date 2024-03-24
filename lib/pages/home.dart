@@ -78,35 +78,42 @@ class _HomepageState extends State<Homepage> {
       _recognitions = recognitions;
       v = recognitions.toString();
     });
-    String stringInput = _recognitions[0]['label'];
+    print("tes hasil ${_recognitions}");
+    print("tes hasil ${_recognitions[0]['confidence'] < 1}");
 
-    List<String> kata = stringInput.split(' ');
+    if (_recognitions[0]['confidence'] < 1) {
+      Get.back();
+    } else {
+      String stringInput = _recognitions[0]['label'];
 
-    String foodIndex = kata.length > 0 ? kata[0] : '';
-    String food = kata.length > 1 ? kata[1] : '';
+      List<String> kata = stringInput.split(' ');
 
-    var calorie = 0;
-    if (foodIndex == '0') {
-      calorie = Random().nextInt(3000 - 1500 + 1) + 1500;
-    } else if (foodIndex == '1') {
-      calorie = Random().nextInt(700 - 250 + 1) + 250;
-    } else if (foodIndex == '2') {
-      calorie = Random().nextInt(350 - 200 + 1) + 200;
-    } else if (foodIndex == '3') {
-      calorie = Random().nextInt(380 - 170 + 1) + 170;
-    } else if (foodIndex == '4') {
-      calorie = Random().nextInt(330 - 180 + 1) + 180;
-    } else if (foodIndex == '5') {
-      calorie = Random().nextInt(400 - 270 + 1) + 270;
+      String foodIndex = kata.length > 0 ? kata[0] : '';
+      String food = kata.length > 1 ? kata[1] : '';
+
+      var calorie = 0;
+      if (foodIndex == '4') {
+        calorie = Random().nextInt(3000 - 1500 + 1) + 1500;
+      } else if (foodIndex == '1') {
+        calorie = Random().nextInt(700 - 250 + 1) + 250;
+      } else if (foodIndex == '2') {
+        calorie = Random().nextInt(350 - 200 + 1) + 200;
+      } else if (foodIndex == '3') {
+        calorie = Random().nextInt(380 - 170 + 1) + 170;
+      } else if (foodIndex == '5') {
+        calorie = Random().nextInt(400 - 270 + 1) + 270;
+      } else if (foodIndex == '0') {
+        calorie = Random().nextInt(135 - 270 + 1) + 87;
+      }
+
+      var bodyStoreCalorie = {
+        "foodName": food,
+        "image": base64Image,
+        "calorie": calorie
+      };
+
+      actionStoreCalorie(bodyStoreCalorie);
     }
-
-    var bodyStoreCalorie = {
-      "foodName": food,
-      "image": base64Image,
-      "calorie": calorie
-    };
-
-    actionStoreCalorie(bodyStoreCalorie);
   }
 
   Future<dynamic> bottomSheetScan(BuildContext context) {
