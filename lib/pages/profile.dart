@@ -30,6 +30,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   TextEditingController name = TextEditingController();
   TextEditingController email = TextEditingController();
+  dynamic profilePicture;
 
   Future _pickImageFromGallery() async {
     final returnedImage =
@@ -210,6 +211,7 @@ class _ProfilePageState extends State<ProfilePage> {
         setState(() {
           name.text = res['data']['name'];
           email.text = res['data']['email'];
+          profilePicture = res['data']['imageProfile'];
         });
       }
     }).catchError((e) {
@@ -250,13 +252,19 @@ class _ProfilePageState extends State<ProfilePage> {
                     decoration: const BoxDecoration(
                         borderRadius: BorderRadius.all(Radius.circular(1000))),
                     height: MediaQuery.of(context).size.height * 0.12,
+                    width: MediaQuery.of(context).size.height * 0.12,
                     child: ClipRRect(
                       borderRadius:
                           const BorderRadius.all(Radius.circular(1000)),
-                      child: Image.asset(
-                        'assets/images/logo.png',
-                        fit: BoxFit.cover,
-                      ),
+                      child: profilePicture == null
+                          ? Image.asset(
+                              'assets/images/logo.png',
+                              fit: BoxFit.cover,
+                            )
+                          : Image.network(
+                              profilePicture,
+                              fit: BoxFit.cover,
+                            ),
                     ),
                   ),
                 ),

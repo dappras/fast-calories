@@ -11,7 +11,7 @@ class HttpService {
   final LocalStorage storage = LocalStorage('fast-calories');
   Map<String, String> headers = {};
   final JsonDecoder _decoder = const JsonDecoder();
-  static const _baseUrl = "http://10.0.2.2:3000/";
+  static const _baseUrl = "https://server-fast-calories-dappras.koyeb.app/";
 
   Future<dynamic> post(String desturl,
       {Map<String, String> headers = const {"": ""}, body, encoding}) async {
