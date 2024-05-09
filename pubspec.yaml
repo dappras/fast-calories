@@ -41,6 +41,8 @@ dependencies:
   localstorage: ^4.0.1+4
   tflite_flutter: ^0.10.4
   tflite_v2: ^1.0.0
+  loader_overlay: ^4.0.0
+  loading_overlay: ^0.3.0
 
 dev_dependencies:
   flutter_test:
