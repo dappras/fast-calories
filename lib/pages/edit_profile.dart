@@ -105,7 +105,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
     await http.post('user/edit-user', body: body).then((res) {
       print("ini res ${res}");
       if (res['success']) {
-        Get.offAndToNamed(RouteName.profilePage);
+        if (res['data']["roles"] != null && res['data']["roles"] == 1) {
+          Get.offAllNamed(RouteName.profileAdminPage);
+        } else {
+          Get.offAllNamed(RouteName.profilePage);
+        }
       }
     }).catchError((e) {
       log("Error getting data user");

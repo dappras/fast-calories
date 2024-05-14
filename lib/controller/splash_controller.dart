@@ -11,7 +11,11 @@ class SplashController extends GetxController {
     var duration = const Duration(seconds: 3);
     Timer(duration, () {
       if (storage.getItem("token") != null) {
-        Get.offAllNamed(RouteName.homePage);
+        if (storage.getItem("roles") != null && storage.getItem("roles") == 1) {
+          Get.offAllNamed(RouteName.homePageAdmin);
+        } else {
+          Get.offAllNamed(RouteName.homePage);
+        }
       } else {
         Get.offAllNamed(RouteName.welcomePage);
       }

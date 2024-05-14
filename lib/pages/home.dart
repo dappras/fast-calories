@@ -12,6 +12,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:tflite_v2/tflite_v2.dart';
+import 'package:http/http.dart' as https;
+
+import 'package:pdf/pdf.dart';
+import 'package:printing/printing.dart';
+import 'package:pdf/widgets.dart' as pw;
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
@@ -183,6 +188,105 @@ class _HomepageState extends State<Homepage> {
         ),
       ),
     );
+  }
+
+  Future<Uint8List> _downloadImage(String url) async {
+    final response = await https.get(Uri.parse(url));
+    if (response.statusCode == 200) {
+      return response.bodyBytes;
+    } else {
+      throw Exception('Failed to load image');
+    }
+  }
+
+  Future<Uint8List> createCaloriePdf() async {
+    final pdf = pw.Document();
+
+    final width = MediaQuery.of(context).size.width;
+    final height = MediaQuery.of(context).size.height;
+    final netImage = [];
+
+    for (var i = 0; i < listCalorie['calorieAll'].length; i++) {
+      final imageBytes =
+          await _downloadImage(listCalorie['calorieAll'][i]['image']);
+      netImage.add(pw.MemoryImage(imageBytes));
+    }
+
+    pdf.addPage(
+      pw.Page(
+        pageFormat: PdfPageFormat.a4,
+        build: (pw.Context context) {
+          return pw.Padding(
+            padding: pw.EdgeInsets.symmetric(horizontal: 16),
+            child: pw.Container(
+              child: pw.Column(
+                mainAxisAlignment: pw.MainAxisAlignment.start,
+                children: [
+                  pw.Text("Summary Calorie",
+                      style: pw.TextStyle(
+                        fontSize: 25,
+                        fontWeight: pw.FontWeight.bold,
+                      ),
+                      textAlign: pw.TextAlign.center),
+                  pw.SizedBox(height: height * 0.05),
+                  for (int i = 0; i < listCalorie['calorieAll'].length; i++)
+                    pw.Padding(
+                      padding:
+                          pw.EdgeInsets.symmetric(vertical: height * 0.015),
+                      child: pw.Row(
+                        children: [
+                          pw.Container(
+                            decoration: const pw.BoxDecoration(
+                              borderRadius:
+                                  pw.BorderRadius.all(pw.Radius.circular(1000)),
+                            ),
+                            height: height * 0.1,
+                            width: width * 0.2,
+                            child: pw.ClipRRect(
+                              horizontalRadius: 1000,
+                              verticalRadius: 1000,
+                              child: pw.Image(
+                                netImage[i],
+                                fit: pw.BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                          pw.SizedBox(
+                            width: 24,
+                          ),
+                          pw.Column(
+                            crossAxisAlignment: pw.CrossAxisAlignment.start,
+                            children: [
+                              pw.Text(
+                                listCalorie['calorieAll'][i]['foodName'],
+                                style: const pw.TextStyle(
+                                  fontSize: 18,
+                                ),
+                              ),
+                              pw.SizedBox(
+                                height: 6,
+                              ),
+                              pw.Text(
+                                "${listCalorie['calorieAll'][i]['calorie']} Kkal",
+                                style: pw.TextStyle(
+                                  fontWeight: pw.FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    )
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+
+    return pdf.save();
   }
 
   @override
@@ -424,379 +528,454 @@ class _HomepageState extends State<Homepage> {
                     children: [
                       SingleChildScrollView(
                         child: Padding(
-                          padding:
-                              EdgeInsets.symmetric(vertical: height * 0.04),
-                          child: Center(
-                            child: Wrap(
-                              spacing: 12,
-                              runSpacing: 18,
-                              children: [
-                                for (int i = 0;
-                                    i <
-                                        (listCalorie.isNotEmpty
-                                            ? listCalorie['calorieToday'].length
-                                            : 0);
-                                    i++)
-                                  Container(
-                                    width: width * 0.40,
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 12, vertical: 16),
-                                    decoration: const BoxDecoration(
-                                      color: Color(ColorWay.colorCard1),
-                                      borderRadius:
-                                          BorderRadius.all(Radius.circular(20)),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          child: Column(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 20),
+                                child: Container(
+                                  alignment: Alignment.topRight,
+                                  child: InkWell(
+                                    onTap: () async {
+                                      final data = await createCaloriePdf();
+                                      await Printing.sharePdf(
+                                          bytes: data,
+                                          filename: 'summary_calorie.pdf');
+                                    },
+                                    child: const Icon(
+                                      Icons.download_for_offline,
+                                      color: Color(ColorWay.gray),
                                     ),
-                                    child: Column(
-                                      children: [
-                                        Container(
-                                          width: width * 0.22 * 0.72,
-                                          child: Center(
-                                            child: Container(
-                                              height: width * 0.22 * 0.72,
-                                              decoration: const BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.all(
-                                                          Radius.circular(
-                                                              1000))),
-                                              child: ClipRRect(
-                                                borderRadius:
-                                                    const BorderRadius.all(
-                                                        Radius.circular(1000)),
-                                                child: Image.network(
+                                  ),
+                                ),
+                              ),
+                              Center(
+                                child: Wrap(
+                                  spacing: 12,
+                                  runSpacing: 18,
+                                  children: [
+                                    for (int i = 0;
+                                        i <
+                                            (listCalorie.isNotEmpty
+                                                ? listCalorie['calorieToday']
+                                                    .length
+                                                : 0);
+                                        i++)
+                                      Container(
+                                        width: width * 0.40,
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 12, vertical: 16),
+                                        decoration: const BoxDecoration(
+                                          color: Color(ColorWay.colorCard1),
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(20)),
+                                        ),
+                                        child: Column(
+                                          children: [
+                                            Container(
+                                              width: width * 0.22 * 0.72,
+                                              child: Center(
+                                                child: Container(
+                                                  height: width * 0.22 * 0.72,
+                                                  decoration: const BoxDecoration(
+                                                      borderRadius:
+                                                          BorderRadius.all(
+                                                              Radius.circular(
+                                                                  1000))),
+                                                  child: ClipRRect(
+                                                    borderRadius:
+                                                        const BorderRadius.all(
+                                                            Radius.circular(
+                                                                1000)),
+                                                    child: Image.network(
+                                                      listCalorie.isNotEmpty
+                                                          ? listCalorie[
+                                                                  'calorieToday']
+                                                              [i]['image']
+                                                          : "",
+                                                      fit: BoxFit.cover,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            Container(
+                                              margin: const EdgeInsets.only(
+                                                top: 14,
+                                              ),
+                                              child: Text(
                                                   listCalorie.isNotEmpty
                                                       ? listCalorie[
                                                               'calorieToday'][i]
-                                                          ['image']
+                                                          ['foodName']
                                                       : "",
-                                                  fit: BoxFit.cover,
-                                                ),
+                                                  style: const TextStyle(
+                                                    color: Color(ColorWay.gray),
+                                                    fontSize: 16,
+                                                  )),
+                                            ),
+                                            Container(
+                                              margin: const EdgeInsets.only(
+                                                top: 8,
                                               ),
-                                            ),
-                                          ),
-                                        ),
-                                        Container(
-                                          margin: const EdgeInsets.only(
-                                            top: 14,
-                                          ),
-                                          child: Text(
-                                              listCalorie.isNotEmpty
-                                                  ? listCalorie['calorieToday']
-                                                      [i]['foodName']
-                                                  : "",
-                                              style: const TextStyle(
-                                                color: Color(ColorWay.gray),
-                                                fontSize: 16,
-                                              )),
-                                        ),
-                                        Container(
-                                          margin: const EdgeInsets.only(
-                                            top: 8,
-                                          ),
-                                          child: Text(
-                                            listCalorie.isNotEmpty
-                                                ? "${listCalorie['calorieToday'][i]['calorie']} Kkal"
-                                                : "",
-                                            style: const TextStyle(
-                                              color: Color(ColorWay.black),
-                                              fontSize: 14,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                if (listCalorie.isNotEmpty &&
-                                    listCalorie['calorieToday'].length > 0)
-                                  InkWell(
-                                    onTap: () {
-                                      Get.toNamed(RouteName.listCaloriePage,
-                                          arguments: ["today"]);
-                                    },
-                                    child: Container(
-                                      height: height * 0.2,
-                                      width: width * 0.40,
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 12, vertical: 16),
-                                      decoration: BoxDecoration(
-                                          borderRadius: const BorderRadius.all(
-                                              Radius.circular(20)),
-                                          border: Border.all(
-                                            color:
-                                                const Color(ColorWay.primary),
-                                            width: 1,
-                                          )),
-                                      child: const Center(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Text(
-                                              "See More",
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.w500,
+                                              child: Text(
+                                                listCalorie.isNotEmpty
+                                                    ? "${listCalorie['calorieToday'][i]['calorie']} Kkal"
+                                                    : "",
+                                                style: const TextStyle(
+                                                  color: Color(ColorWay.black),
+                                                  fontSize: 14,
+                                                ),
                                               ),
                                             ),
                                           ],
                                         ),
                                       ),
-                                    ),
-                                  ),
-                              ],
-                            ),
+                                    if (listCalorie.isNotEmpty &&
+                                        listCalorie['calorieToday'].length > 0)
+                                      InkWell(
+                                        onTap: () {
+                                          Get.toNamed(RouteName.listCaloriePage,
+                                              arguments: ["today"]);
+                                        },
+                                        child: Container(
+                                          height: height * 0.2,
+                                          width: width * 0.40,
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 12, vertical: 16),
+                                          decoration: BoxDecoration(
+                                              borderRadius:
+                                                  const BorderRadius.all(
+                                                      Radius.circular(20)),
+                                              border: Border.all(
+                                                color: const Color(
+                                                    ColorWay.primary),
+                                                width: 1,
+                                              )),
+                                          child: const Center(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Text(
+                                                  "See More",
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
                       SingleChildScrollView(
                         child: Padding(
-                          padding:
-                              EdgeInsets.symmetric(vertical: height * 0.04),
-                          child: Center(
-                            child: Wrap(
-                              spacing: 12,
-                              runSpacing: 18,
-                              children: [
-                                for (int i = 0;
-                                    i <
-                                        (listCalorie.isNotEmpty
-                                            ? listCalorie['calorieWeek'].length
-                                            : 0);
-                                    i++)
-                                  Container(
-                                    width: width * 0.40,
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 12, vertical: 16),
-                                    decoration: const BoxDecoration(
-                                      color: Color(ColorWay.colorCard1),
-                                      borderRadius:
-                                          BorderRadius.all(Radius.circular(20)),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          child: Column(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 20),
+                                child: Container(
+                                  alignment: Alignment.topRight,
+                                  child: InkWell(
+                                    onTap: () async {
+                                      final data = await createCaloriePdf();
+                                      await Printing.sharePdf(
+                                          bytes: data,
+                                          filename: 'summary_calorie.pdf');
+                                    },
+                                    child: const Icon(
+                                      Icons.download_for_offline,
+                                      color: Color(ColorWay.gray),
                                     ),
-                                    child: Column(
-                                      children: [
-                                        Container(
-                                          width: width * 0.22 * 0.72,
-                                          child: Center(
-                                            child: Container(
-                                              height: width * 0.22 * 0.72,
-                                              decoration: const BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.all(
-                                                          Radius.circular(
-                                                              1000))),
-                                              child: ClipRRect(
-                                                borderRadius:
-                                                    const BorderRadius.all(
-                                                        Radius.circular(1000)),
-                                                child: Image.network(
+                                  ),
+                                ),
+                              ),
+                              Center(
+                                child: Wrap(
+                                  spacing: 12,
+                                  runSpacing: 18,
+                                  children: [
+                                    for (int i = 0;
+                                        i <
+                                            (listCalorie.isNotEmpty
+                                                ? listCalorie['calorieWeek']
+                                                    .length
+                                                : 0);
+                                        i++)
+                                      Container(
+                                        width: width * 0.40,
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 12, vertical: 16),
+                                        decoration: const BoxDecoration(
+                                          color: Color(ColorWay.colorCard1),
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(20)),
+                                        ),
+                                        child: Column(
+                                          children: [
+                                            Container(
+                                              width: width * 0.22 * 0.72,
+                                              child: Center(
+                                                child: Container(
+                                                  height: width * 0.22 * 0.72,
+                                                  decoration: const BoxDecoration(
+                                                      borderRadius:
+                                                          BorderRadius.all(
+                                                              Radius.circular(
+                                                                  1000))),
+                                                  child: ClipRRect(
+                                                    borderRadius:
+                                                        const BorderRadius.all(
+                                                            Radius.circular(
+                                                                1000)),
+                                                    child: Image.network(
+                                                      listCalorie.isNotEmpty
+                                                          ? listCalorie[
+                                                                  'calorieWeek']
+                                                              [i]['image']
+                                                          : "",
+                                                      fit: BoxFit.cover,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            Container(
+                                              margin: const EdgeInsets.only(
+                                                top: 14,
+                                              ),
+                                              child: Text(
                                                   listCalorie.isNotEmpty
                                                       ? listCalorie[
                                                               'calorieWeek'][i]
-                                                          ['image']
+                                                          ['foodName']
                                                       : "",
-                                                  fit: BoxFit.cover,
-                                                ),
+                                                  style: const TextStyle(
+                                                    color: Color(ColorWay.gray),
+                                                    fontSize: 16,
+                                                  )),
+                                            ),
+                                            Container(
+                                              margin: const EdgeInsets.only(
+                                                top: 8,
                                               ),
-                                            ),
-                                          ),
-                                        ),
-                                        Container(
-                                          margin: const EdgeInsets.only(
-                                            top: 14,
-                                          ),
-                                          child: Text(
-                                              listCalorie.isNotEmpty
-                                                  ? listCalorie['calorieWeek']
-                                                      [i]['foodName']
-                                                  : "",
-                                              style: const TextStyle(
-                                                color: Color(ColorWay.gray),
-                                                fontSize: 16,
-                                              )),
-                                        ),
-                                        Container(
-                                          margin: const EdgeInsets.only(
-                                            top: 8,
-                                          ),
-                                          child: Text(
-                                            listCalorie.isNotEmpty
-                                                ? "${listCalorie['calorieWeek'][i]['calorie']} Kkal"
-                                                : "",
-                                            style: const TextStyle(
-                                              color: Color(ColorWay.black),
-                                              fontSize: 14,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                if (listCalorie.isNotEmpty &&
-                                    listCalorie['calorieWeek'].length > 0)
-                                  InkWell(
-                                    onTap: () {
-                                      Get.toNamed(RouteName.listCaloriePage,
-                                          arguments: ["week"]);
-                                    },
-                                    child: Container(
-                                      height: height * 0.2,
-                                      width: width * 0.40,
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 12, vertical: 16),
-                                      decoration: BoxDecoration(
-                                          borderRadius: const BorderRadius.all(
-                                              Radius.circular(20)),
-                                          border: Border.all(
-                                            color:
-                                                const Color(ColorWay.primary),
-                                            width: 1,
-                                          )),
-                                      child: const Center(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Text(
-                                              "See More",
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.w500,
+                                              child: Text(
+                                                listCalorie.isNotEmpty
+                                                    ? "${listCalorie['calorieWeek'][i]['calorie']} Kkal"
+                                                    : "",
+                                                style: const TextStyle(
+                                                  color: Color(ColorWay.black),
+                                                  fontSize: 14,
+                                                ),
                                               ),
                                             ),
                                           ],
                                         ),
                                       ),
-                                    ),
-                                  ),
-                              ],
-                            ),
+                                    if (listCalorie.isNotEmpty &&
+                                        listCalorie['calorieWeek'].length > 0)
+                                      InkWell(
+                                        onTap: () {
+                                          Get.toNamed(RouteName.listCaloriePage,
+                                              arguments: ["week"]);
+                                        },
+                                        child: Container(
+                                          height: height * 0.2,
+                                          width: width * 0.40,
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 12, vertical: 16),
+                                          decoration: BoxDecoration(
+                                              borderRadius:
+                                                  const BorderRadius.all(
+                                                      Radius.circular(20)),
+                                              border: Border.all(
+                                                color: const Color(
+                                                    ColorWay.primary),
+                                                width: 1,
+                                              )),
+                                          child: const Center(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Text(
+                                                  "See More",
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
                       SingleChildScrollView(
                         child: Padding(
-                          padding:
-                              EdgeInsets.symmetric(vertical: height * 0.04),
-                          child: Center(
-                            child: Wrap(
-                              spacing: 12,
-                              runSpacing: 18,
-                              children: [
-                                for (int i = 0;
-                                    i <
-                                        (listCalorie.isNotEmpty
-                                            ? listCalorie['calorieAll'].length
-                                            : 0);
-                                    i++)
-                                  Container(
-                                    width: width * 0.40,
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 12, vertical: 16),
-                                    decoration: const BoxDecoration(
-                                      color: Color(ColorWay.colorCard1),
-                                      borderRadius:
-                                          BorderRadius.all(Radius.circular(20)),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          child: Column(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 20),
+                                child: Container(
+                                  alignment: Alignment.topRight,
+                                  child: InkWell(
+                                    onTap: () async {
+                                      final data = await createCaloriePdf();
+                                      await Printing.sharePdf(
+                                          bytes: data,
+                                          filename: 'summary_calorie.pdf');
+                                    },
+                                    child: const Icon(
+                                      Icons.download_for_offline,
+                                      color: Color(ColorWay.gray),
                                     ),
-                                    child: Column(
-                                      children: [
-                                        Container(
-                                          width: width * 0.22 * 0.72,
-                                          child: Center(
-                                            child: Container(
-                                              height: width * 0.22 * 0.72,
-                                              decoration: const BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.all(
-                                                          Radius.circular(
-                                                              1000))),
-                                              child: ClipRRect(
-                                                borderRadius:
-                                                    const BorderRadius.all(
-                                                        Radius.circular(1000)),
-                                                child: Image.network(
-                                                  listCalorie.isNotEmpty
-                                                      ? listCalorie[
-                                                              'calorieAll'][i]
-                                                          ['image']
-                                                      : "",
-                                                  fit: BoxFit.cover,
+                                  ),
+                                ),
+                              ),
+                              Center(
+                                child: Wrap(
+                                  spacing: 12,
+                                  runSpacing: 18,
+                                  children: [
+                                    for (int i = 0;
+                                        i <
+                                            (listCalorie.isNotEmpty
+                                                ? listCalorie['calorieAll']
+                                                    .length
+                                                : 0);
+                                        i++)
+                                      Container(
+                                        width: width * 0.40,
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 12, vertical: 16),
+                                        decoration: const BoxDecoration(
+                                          color: Color(ColorWay.colorCard1),
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(20)),
+                                        ),
+                                        child: Column(
+                                          children: [
+                                            Container(
+                                              width: width * 0.22 * 0.72,
+                                              child: Center(
+                                                child: Container(
+                                                  height: width * 0.22 * 0.72,
+                                                  decoration: const BoxDecoration(
+                                                      borderRadius:
+                                                          BorderRadius.all(
+                                                              Radius.circular(
+                                                                  1000))),
+                                                  child: ClipRRect(
+                                                    borderRadius:
+                                                        const BorderRadius.all(
+                                                            Radius.circular(
+                                                                1000)),
+                                                    child: Image.network(
+                                                      listCalorie.isNotEmpty
+                                                          ? listCalorie[
+                                                                  'calorieAll']
+                                                              [i]['image']
+                                                          : "",
+                                                      fit: BoxFit.cover,
+                                                    ),
+                                                  ),
                                                 ),
                                               ),
                                             ),
-                                          ),
-                                        ),
-                                        Container(
-                                          margin: const EdgeInsets.only(
-                                            top: 14,
-                                          ),
-                                          child: Text(
-                                              listCalorie.isNotEmpty
-                                                  ? listCalorie['calorieAll'][i]
-                                                      ['foodName']
-                                                  : "",
-                                              style: const TextStyle(
-                                                color: Color(ColorWay.gray),
-                                                fontSize: 16,
-                                              )),
-                                        ),
-                                        Container(
-                                          margin: const EdgeInsets.only(
-                                            top: 8,
-                                          ),
-                                          child: Text(
-                                            listCalorie.isNotEmpty
-                                                ? "${listCalorie['calorieAll'][i]['calorie']} Kkal"
-                                                : "",
-                                            style: const TextStyle(
-                                              color: Color(ColorWay.black),
-                                              fontSize: 14,
+                                            Container(
+                                              margin: const EdgeInsets.only(
+                                                top: 14,
+                                              ),
+                                              child: Text(
+                                                  listCalorie.isNotEmpty
+                                                      ? listCalorie[
+                                                              'calorieAll'][i]
+                                                          ['foodName']
+                                                      : "",
+                                                  style: const TextStyle(
+                                                    color: Color(ColorWay.gray),
+                                                    fontSize: 16,
+                                                  )),
                                             ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                if (listCalorie.isNotEmpty &&
-                                    listCalorie['calorieAll'].length > 0)
-                                  InkWell(
-                                    onTap: () {
-                                      Get.toNamed(RouteName.listCaloriePage,
-                                          arguments: ["all"]);
-                                    },
-                                    child: Container(
-                                      height: height * 0.2,
-                                      width: width * 0.40,
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 12, vertical: 16),
-                                      decoration: BoxDecoration(
-                                          borderRadius: const BorderRadius.all(
-                                              Radius.circular(20)),
-                                          border: Border.all(
-                                            color:
-                                                const Color(ColorWay.primary),
-                                            width: 1,
-                                          )),
-                                      child: const Center(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Text(
-                                              "See More",
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.w500,
+                                            Container(
+                                              margin: const EdgeInsets.only(
+                                                top: 8,
+                                              ),
+                                              child: Text(
+                                                listCalorie.isNotEmpty
+                                                    ? "${listCalorie['calorieAll'][i]['calorie']} Kkal"
+                                                    : "",
+                                                style: const TextStyle(
+                                                  color: Color(ColorWay.black),
+                                                  fontSize: 14,
+                                                ),
                                               ),
                                             ),
                                           ],
                                         ),
                                       ),
-                                    ),
-                                  ),
-                              ],
-                            ),
+                                    if (listCalorie.isNotEmpty &&
+                                        listCalorie['calorieAll'].length > 0)
+                                      InkWell(
+                                        onTap: () {
+                                          Get.toNamed(RouteName.listCaloriePage,
+                                              arguments: ["all"]);
+                                        },
+                                        child: Container(
+                                          height: height * 0.2,
+                                          width: width * 0.40,
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 12, vertical: 16),
+                                          decoration: BoxDecoration(
+                                              borderRadius:
+                                                  const BorderRadius.all(
+                                                      Radius.circular(20)),
+                                              border: Border.all(
+                                                color: const Color(
+                                                    ColorWay.primary),
+                                                width: 1,
+                                              )),
+                                          child: const Center(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Text(
+                                                  "See More",
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),

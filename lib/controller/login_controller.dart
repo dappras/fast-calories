@@ -25,6 +25,11 @@ class LoginController extends GetxController {
     var loginHit = await http.post('user/login', body: body).then((res) {
       if (res['success']) {
         storage.setItem("token", res['token']);
+        if (res['user']['roles'] == null) {
+          storage.setItem("roles", 0);
+        } else {
+          storage.setItem("roles", (res['user']['roles']));
+        }
       }
       return res;
     }).catchError((e) {
