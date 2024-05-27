@@ -87,8 +87,9 @@ class _ProfilePageState extends State<ProfilePage> {
       _recognitions = recognitions;
       v = recognitions.toString();
     });
+    print("tes hasil ${_recognitions}");
 
-    if (_recognitions[0]['confidence'] < 1) {
+    if (_recognitions[0]['confidence'] < 0.92) {
       Get.back();
       setState(() {
         isLoading = false;
@@ -101,28 +102,40 @@ class _ProfilePageState extends State<ProfilePage> {
       String foodIndex = kata.length > 0 ? kata[0] : '';
       String food = kata.length > 1 ? kata[1] : '';
 
-      var calorie = 0;
-      if (foodIndex == '4') {
-        calorie = Random().nextInt(3000 - 1500 + 1) + 1500;
-      } else if (foodIndex == '1') {
-        calorie = Random().nextInt(700 - 250 + 1) + 250;
-      } else if (foodIndex == '2') {
-        calorie = Random().nextInt(350 - 200 + 1) + 200;
-      } else if (foodIndex == '3') {
-        calorie = Random().nextInt(380 - 170 + 1) + 170;
-      } else if (foodIndex == '5') {
-        calorie = Random().nextInt(400 - 270 + 1) + 270;
-      } else if (foodIndex == '0') {
-        calorie = Random().nextInt(135 - 270 + 1) + 87;
+      if (foodIndex == '4' ||
+          foodIndex == '1' ||
+          foodIndex == '2' ||
+          foodIndex == '6' ||
+          foodIndex == '7' ||
+          foodIndex == '0') {
+        var calorie = 0;
+        if (foodIndex == '6') {
+          calorie = Random().nextInt(3000 - 1500 + 1) + 1500;
+        } else if (foodIndex == '1') {
+          calorie = Random().nextInt(700 - 250 + 1) + 250;
+        } else if (foodIndex == '2') {
+          calorie = Random().nextInt(350 - 200 + 1) + 200;
+        } else if (foodIndex == '4') {
+          calorie = Random().nextInt(380 - 170 + 1) + 170;
+        } else if (foodIndex == '7') {
+          calorie = Random().nextInt(400 - 270 + 1) + 270;
+        } else if (foodIndex == '0') {
+          calorie = Random().nextInt(135 - 270 + 1) + 87;
+        }
+
+        var bodyStoreCalorie = {
+          "foodName": food,
+          "image": base64Image,
+          "calorie": calorie
+        };
+
+        actionStoreCalorie(bodyStoreCalorie);
+      } else {
+        Get.back();
+        setState(() {
+          isLoading = false;
+        });
       }
-
-      var bodyStoreCalorie = {
-        "foodName": food,
-        "image": base64Image,
-        "calorie": calorie
-      };
-
-      actionStoreCalorie(bodyStoreCalorie);
     }
   }
 
