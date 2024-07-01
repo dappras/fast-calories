@@ -1,6 +1,10 @@
 0 Baked Potato
 1 Burger
-2 Fried Chicken
-3 Fries
-4 Pizza
-5 Sandwich
+2 Crispy Chicken
+3 Donut
+4 Fries
+5 Hot Dog
+6 Pizza
+7 Sandwich
+8 Taco
+9 Taquito
