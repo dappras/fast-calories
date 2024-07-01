@@ -90,9 +90,9 @@ class _HomepageState extends State<Homepage> {
       v = recognitions.toString();
     });
     print("tes hasil ${_recognitions}");
-    print("tes hasil ${_recognitions[0]['confidence'] < 1}");
+    print("tes hasil ${_recognitions[0]['confidence'] < 0.98}");
 
-    if (_recognitions[0]['confidence'] < 1) {
+    if (_recognitions[0]['confidence'] < 0.98) {
       Get.back();
       setState(() {
         isLoading = false;
